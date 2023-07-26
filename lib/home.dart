@@ -30,19 +30,47 @@ class _HomeState extends State<Home> {
   var net = false;
   List<String> users = [];
   List<String> chatlist = [];
+  List<String> newlist = [];
 
-  Future<void> init() async {
+  Future<void> getbox() async {
     var box = await Hive.openBox('box1');
     var c = box.get('chatlist');
-    if (c != null) {
-      if (mounted) {
-        setState(() {
-          chatlist = box.get('chatlist');
-        });
+    var n = box.get('newlist');
+    setState(() {
+      if (c != null) {
+        chatlist = box.get('chatlist');
       }
-    } else {
-      chatlist = [];
-    }
+      if (n != null) {
+        newlist = box.get('newlist');
+      }
+    });
+  }
+
+  Future<void> init() async {
+    getbox();
+
+    print(chatlist);
+    print(newlist);
+
+    var me = await getsp('user');
+    db.child(me).onValue.listen((event) {
+      for (final child in event.snapshot.children) {
+        if (child.key.toString() != 'joined') {
+          addtonewlist(child.key.toString());
+          for (final child1 in child.children) {
+            addtohermsgs(child1.value.toString(), child.key.toString(),
+                child1.key.toString());
+
+            db
+                .child(me)
+                .child(child.key.toString())
+                .child(child1.key.toString())
+                .remove();
+          }
+        }
+      }
+      getbox();
+    });
   }
 
   @override
@@ -282,10 +310,20 @@ class _HomeState extends State<Home> {
               ),
               SliverList(
                   delegate: SliverChildBuilderDelegate(
-                      childCount: chatlist.length,
+                      childCount: newlist.length,
                       (context, index) => EachUser(
-                            user: chatlist[index],
-                          )))
+                            user: newlist[index],
+                            isnew: true,
+                          ))),
+              SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                      childCount: chatlist.length,
+                      (context, index) =>
+                          (newlist.contains(chatlist[index]) == false)
+                              ? EachUser(
+                                  user: chatlist[index],
+                                )
+                              : SizedBox()))
             ],
           ),
         ),
@@ -320,7 +358,8 @@ class _HomeState extends State<Home> {
 
 class EachUser extends StatefulWidget {
   String user;
-  EachUser({super.key, required this.user});
+  bool isnew;
+  EachUser({super.key, required this.user, this.isnew = false});
 
   @override
   State<EachUser> createState() => _EachUserState();
@@ -332,6 +371,9 @@ class _EachUserState extends State<EachUser> {
     return InkWell(
       onTap: () {
         addtochatlist(widget.user);
+        if (widget.isnew) {
+          markasread(widget.user);
+        }
         Navigator.push(
             context,
             CupertinoPageRoute(
@@ -359,7 +401,10 @@ class _EachUserState extends State<EachUser> {
               children: [
                 Text(
                   widget.user,
-                  style: GoogleFonts.poppins(color: Colors.black),
+                  style: GoogleFonts.poppins(
+                      color: Colors.black,
+                      fontWeight:
+                          widget.isnew ? FontWeight.bold : FontWeight.normal),
                 ),
                 Text(
                   'recently joined',

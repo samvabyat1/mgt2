@@ -36,7 +36,9 @@ class _SettingsState extends State<Settings> {
                   ),
                 ),
                 InkWell(
-                  onTap: () => clearbox(),
+                  onTap: () {
+                    clearbox().whenComplete(() => Navigator.pop(context));
+                  },
                   child: SettingGridItem(
                     icone: Icons.remove_circle_outline,
                     texte: 'Delete box',
