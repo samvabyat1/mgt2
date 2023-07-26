@@ -124,6 +124,19 @@ class _LoginModalState extends State<LoginModal> {
   var useravail = true;
   var username = '';
 
+  List<String> users = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    init();
+  }
+
+  Future<void> init() async {
+    users = await getallusers();
+  }
+
   @override
   Widget build(BuildContext context) {
     var sz = MediaQuery.of(context).size;
@@ -145,6 +158,7 @@ class _LoginModalState extends State<LoginModal> {
                   child: TextField(
                     onChanged: (value) {
                       username = value;
+                      useravail = users.contains(value) ? false : true;
                       setState(() {});
                     },
                   ),
