@@ -1,3 +1,4 @@
-# mgt2
+# MGT2 
+## Messaging Redesigned 
 
-- Project under development::
+- coming soon...
