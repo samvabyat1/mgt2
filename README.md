@@ -6,5 +6,4 @@ A prebuild messaging app with shortcut login and professional industry type mess
 - So it can have major bugs
 
 ## Installation
-[Install app](https://mega.nz/folder/0ZIyFTKC#SxT9JL93IvKD6urG0wCepQ)
-[Github download](https://github.com/samvabyat1/mgt2/releases/download/v1.0/app-release.apk)
+[Download apk](https://github.com/samvabyat1/mgt2/releases/download/v1.0/app-release.apk)
